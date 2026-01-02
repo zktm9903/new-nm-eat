@@ -48,10 +48,15 @@ export async function POST(
         .select()
         .single();
 
-      if (createError) {
-        throw new Error(`Failed to create user: ${createError.message}`);
+      if (createError || !newUser) {
+        throw new Error(`Failed to create user: ${createError?.message || 'Unknown error'}`);
       }
       user = newUser;
+    }
+
+    // user가 확실히 존재하는지 확인
+    if (!user) {
+      throw new Error('User not found or created');
     }
 
     // user_menus 확인

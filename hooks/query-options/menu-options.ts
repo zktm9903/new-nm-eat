@@ -1,5 +1,4 @@
-import { QueryOptions } from '@tanstack/react-query';
-import { Menu } from '@/types/menu';
+import { Menu } from "@/types/menu";
 
 export interface MenuWithLike extends Menu {
   liked?: boolean;
@@ -11,16 +10,16 @@ export interface MenusResponse {
 }
 
 // 메뉴 목록 조회
-export const menuQueryOptions = (date: Date): QueryOptions<MenuWithLike[]> => ({
-  queryKey: ['menus', date.toISOString().slice(0, 10)],
-  queryFn: async () => {
+export const menuQueryOptions = (date: Date) => ({
+  queryKey: ["menus", date.toISOString().slice(0, 10)] as const,
+  queryFn: async (): Promise<MenuWithLike[]> => {
     const dateStr = date.toISOString().slice(0, 10);
     const response = await fetch(`/api/menus?date=${dateStr}`);
-    
+
     if (!response.ok) {
-      throw new Error('Failed to fetch menus');
+      throw new Error("Failed to fetch menus");
     }
-    
+
     const data: MenusResponse = await response.json();
     return data.menus;
   },
@@ -31,14 +30,13 @@ export const menuQueryOptions = (date: Date): QueryOptions<MenuWithLike[]> => ({
 export const toggleLikeMutationOptions = (menuId: string) => ({
   mutationFn: async (): Promise<{ success: boolean }> => {
     const response = await fetch(`/api/menus/${menuId}/like`, {
-      method: 'POST',
+      method: "POST",
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to toggle like');
+      throw new Error("Failed to toggle like");
     }
-    
+
     return response.json();
   },
 });
-
