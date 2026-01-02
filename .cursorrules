@@ -1,0 +1,240 @@
+# NHN Eat - Next.js 마이그레이션 프로젝트
+
+## 프로젝트 개요
+이 프로젝트는 NHN 회사의 구내식당 메뉴를 보여주고 투표 기능을 제공하는 웹 애플리케이션입니다. 기존의 React 프론트엔드와 NestJS 백엔드를 Next.js 단일 애플리케이션으로 마이그레이션하는 프로젝트입니다.
+
+## 기술 스택
+- **프레임워크**: Next.js 16+ (App Router 사용)
+- **언어**: TypeScript
+- **데이터베이스**: Supabase (PostgreSQL)
+- **스타일링**: Tailwind CSS
+- **인증**: 쿠키 기반 토큰 발급 (사용자 인증 불필요, 단순 식별용)
+- **상태 관리**: Server Components 우선, 클라이언트 상태는 최소화 (좋아요 버튼 상태 등)
+
+## 주요 기능
+
+### 1. 메뉴 조회
+- 날짜별 메뉴 조회 (점심/저녁 구분)
+- 메뉴 상세 정보 (이름, 칼로리, 설명, 이미지)
+- 도시락 메뉴 구분 표시
+- 주말(토/일) 제외, 평일만 조회 가능
+
+### 2. 투표 기능
+- **여러 메뉴에 대한 좋아요 투표 가능** (중요: 기존 앱과 달리 여러 개 투표 가능)
+- 메뉴별 좋아요 투표만 가능 (싫어요 기능 없음)
+- 사용자별 투표 상태 표시
+
+### 3. 데이터 관리
+- 메뉴 데이터 크롤링 (외부 크론 서비스를 통한 API 호출)
+- 메뉴 이미지 관리
+- 사용자별 투표 기록 관리
+
+## 데이터베이스 구조 (Supabase)
+
+### 주요 테이블
+- `menus`: 메뉴 정보 (이름, 칼로리, 설명, 이미지 URL, 날짜, 식사 타입 등)
+- `menu_stats`: 메뉴별 통계 (좋아요 수만 집계)
+- `user_menus`: 사용자별 메뉴 투표 기록 (토큰 기반으로 누가 투표했는지 추적, 좋아요만 기록)
+- `users`: 사용자 정보 (토큰과 연동, 단순 식별용)
+
+## 개발 원칙
+
+### 1. Next.js App Router 패턴
+- **Server Components 우선 원칙**: 웬만하면 모든 UI는 Server Components로 구현
+- **데이터 페칭**: Server Components에서 직접 Supabase 쿼리 실행
+- **메뉴 목록, 메뉴 카드, 레이아웃 등**: 모두 Server Components로 구현
+- **Client Components는 최소화**: 
+  - 좋아요 버튼 클릭 같은 인터랙티브한 행동만 Client Component로 분리
+  - `'use client'` 디렉티브는 정말 필요한 경우에만 사용
+- **Server Actions 활용**: 좋아요 투표는 Server Action으로 처리하고, Client Component에서는 호출만
+- **API Routes**: Supabase Client를 직접 사용하는 대신 Server Actions 또는 Route Handlers 활용
+- **컴포넌트 구조 예시**:
+  - `MenuList` (Server Component) → 메뉴 목록 렌더링
+  - `MenuCard` (Server Component) → 메뉴 카드 UI 렌더링
+  - `LikeButton` (Client Component) → 좋아요 버튼 클릭 처리만
+
+### 2. Supabase 사용
+- Supabase Client는 서버 사이드에서 사용
+- Row Level Security (RLS) 정책 설정 (필요시)
+- Realtime 기능 활용 가능 (필요시)
+- **Supabase MCP 활용**: 
+  - 데이터베이스 스키마 확인 및 수정
+  - 테이블 구조 확인
+  - 쿼리 테스트 및 실행
+  - 타입 자동 생성 확인
+
+### 2-1. 인증 토큰 관리
+- **인증 불필요**: 사용자 로그인/회원가입 기능 없음
+- **토큰 발급**: Next.js 미들웨어 또는 Server Component에서 쿠키 확인
+  - 쿠키에 토큰이 없으면 새 UUID 생성 후 쿠키에 저장
+  - 토큰은 사용자 식별용으로만 사용 (누가 어떤 메뉴에 투표했는지 추적)
+- **토큰 저장**: HttpOnly 쿠키로 저장하여 보안 강화
+- **토큰 형식**: UUID 또는 랜덤 문자열
+
+### 3. 코드 구조
+```
+app/
+  ├── (menu)/          # 메뉴 관련 페이지
+  ├── api/
+  │   └── crawl/       # 크롤링 API 엔드포인트
+  ├── sitemap.ts       # 동적 sitemap 생성
+  ├── robots.ts        # robots.txt 생성
+  ├── middleware.ts    # 토큰 발급 미들웨어
+  └── layout.tsx       # 루트 레이아웃 (기본 메타데이터, 최대 너비 600px 제한)
+
+components/
+  ├── menu/            # 메뉴 관련 컴포넌트
+  │   ├── MenuList.tsx        # Server Component (메뉴 목록)
+  │   ├── MenuCard.tsx        # Server Component (메뉴 카드)
+  │   └── LikeButton.tsx      # Client Component (좋아요 버튼만)
+  └── ui/              # 공통 UI 컴포넌트 (shadcn/ui)
+
+lib/
+  ├── supabase/        # Supabase 클라이언트 설정
+  ├── auth/            # 토큰 발급 및 관리 유틸리티
+  ├── crawling/        # 크롤링 로직
+  ├── seo/             # SEO 관련 유틸리티 (메타데이터 생성 등)
+  └── utils/           # 유틸리티 함수
+
+types/                 # TypeScript 타입 정의
+```
+
+### 4. 타입 정의
+- 기존 `front/src/types/Menu.ts`의 타입 구조 참고
+- Supabase에서 자동 생성된 타입 활용 (`supabase gen types`)
+
+### 5. 스타일링 및 UI 컴포넌트
+- Tailwind CSS 사용
+- 기존 `front` 프로젝트의 디자인 시스템 참고
+- **반응형 디자인**:
+  - **모바일/태블릿 전용**: 데스크탑 환경에서도 모바일 뷰로 표시
+  - **최대 너비 제한**: `max-w-[600px]` 또는 `max-w-[600px] mx-auto`로 중앙 정렬
+  - **레이아웃**: 루트 레이아웃에서 최대 너비 제한 적용
+  - **모바일 퍼스트**: 모바일 환경을 우선으로 디자인
+- **shadcn/ui MCP 활용**:
+  - `mcp_shadcn_search_items_in_registries`: 필요한 컴포넌트 검색
+  - `mcp_shadcn_view_items_in_registries`: 컴포넌트 상세 정보 확인
+  - `mcp_shadcn_get_item_examples_from_registries`: 사용 예제 확인
+  - `mcp_shadcn_get_add_command_for_items`: 컴포넌트 추가 명령어 확인
+  - `mcp_shadcn_get_audit_checklist`: 컴포넌트 추가 후 체크리스트 확인
+  - 가능한 모든 UI 컴포넌트는 shadcn/ui에서 가져와서 사용
+
+### 6. SEO 최적화
+- **Metadata API**: Next.js의 `metadata` 또는 `generateMetadata` 함수 활용
+- **뷰포트 설정**: 모바일 최적화를 위한 뷰포트 메타 태그 설정
+- **동적 메타데이터**: 날짜별, 메뉴별로 동적 메타데이터 생성
+- **Open Graph 태그**: 소셜 미디어 공유 최적화
+- **Twitter Card**: Twitter 공유 최적화
+- **구조화된 데이터 (JSON-LD)**: 메뉴 정보를 구조화된 데이터로 제공
+- **Sitemap**: `sitemap.ts` 또는 `sitemap.xml` 생성
+- **Robots.txt**: `robots.ts` 또는 `robots.txt` 설정
+- **이미지 최적화**: Next.js Image 컴포넌트 사용 (자동 최적화)
+- **시맨틱 HTML**: 적절한 HTML5 시맨틱 태그 사용
+- **메타 설명**: 각 페이지별 고유한 메타 설명
+
+## 마이그레이션 고려사항
+
+### 기존 기능 매핑
+- **프론트엔드 (React)**: Next.js App Router로 변환
+- **백엔드 (NestJS)**: 
+  - API 엔드포인트 → Server Actions 또는 Route Handlers
+  - TypeORM 엔티티 → Supabase 테이블
+  - 서비스 로직 → Server Components 또는 Server Actions
+  - 배치 작업 → Next.js API Route로 크롤링 엔드포인트 제공, 외부 크론 서비스에서 1분마다 호출
+
+### 크롤링 배치 작업
+- **Next.js에는 배치 기능이 없음**: 내장 스케줄러 없음
+- **해결 방법**: 크롤링 API 엔드포인트를 Next.js API Route로 구현
+- **외부 크론 서비스**: 무료 크론 서비스(cron-job.org 등)에서 1분에 한 번씩 크롤링 API 호출
+- **API 보안**: 크롤링 API는 인증 토큰 또는 시크릿 키로 보호
+- **구현 위치**: `app/api/crawl/route.ts` 또는 유사한 경로
+
+### 투표 기능 변경
+- **기존**: 한 메뉴에만 좋아요 투표 가능 (다른 메뉴 투표 시 자동 취소)
+- **신규**: 여러 메뉴에 동시 좋아요 투표 가능 (싫어요 기능 없음)
+- **구현 방식**:
+  - Server Component에서 메뉴 데이터와 사용자 투표 상태를 함께 가져옴
+  - 좋아요 버튼만 Client Component로 분리 (`LikeButton`)
+  - 좋아요 클릭 시 Server Action 호출
+  - Server Action에서 투표 처리 후 페이지 리프레시 또는 optimistic update
+
+### 인증
+- 기존: 커스텀 인증 시스템 (헤더 기반 토큰)
+- 신규: 쿠키 기반 토큰 발급
+  - 사용자 인증 불필요 (로그인/회원가입 없음)
+  - 페이지 요청 시 쿠키에 토큰이 없으면 자동으로 새 토큰 발급
+  - 토큰은 사용자 식별용으로만 사용 (투표 추적 목적)
+  - 미들웨어 또는 Server Component에서 토큰 확인 및 발급 처리
+
+## 개발 가이드라인
+
+1. **Server Components 우선**: 
+   - 모든 UI는 기본적으로 Server Component로 구현
+   - 인터랙티브한 기능(좋아요 버튼 클릭 등)만 Client Component로 분리
+   - `'use client'` 디렉티브는 정말 필요한 경우에만 사용
+2. **타입 안정성**: TypeScript를 엄격하게 사용
+3. **에러 처리**: 적절한 에러 바운더리 및 에러 핸들링
+4. **성능 최적화**: 
+   - 이미지 최적화 (Next.js Image 컴포넌트)
+   - 데이터 페칭 최적화 (캐싱 전략)
+   - 코드 스플리팅
+5. **SEO 최적화**: 
+   - 모든 페이지에 적절한 메타데이터 설정
+   - 구조화된 데이터 (JSON-LD) 활용
+   - Open Graph 및 Twitter Card 태그
+   - Sitemap 및 Robots.txt 설정
+   - 시맨틱 HTML 사용
+6. **접근성**: 웹 접근성 표준 준수
+7. **모바일/태블릿 전용 디자인**: 
+   - 모바일과 태블릿 환경만 지원
+   - 최대 너비 600px로 제한 (`max-w-[600px] mx-auto`)
+   - 데스크탑에서 접근해도 모바일 뷰로 표시
+   - 루트 레이아웃에서 최대 너비 제한 적용
+
+## MCP 도구 활용
+
+### Chrome DevTools MCP
+- **브라우저 테스트**: 개발 중 실제 브라우저에서 페이지 테스트
+- **모바일 뷰 테스트**: `mcp_chrome-devtools_resize_page`로 모바일/태블릿 크기로 테스트
+- **스크린샷**: `mcp_chrome-devtools_take_screenshot`로 UI 확인 (모바일 뷰에서)
+- **페이지 상호작용**: `mcp_chrome-devtools_click`, `mcp_chrome-devtools_fill` 등으로 사용자 플로우 테스트
+- **성능 분석**: `mcp_chrome-devtools_performance_start_trace`로 성능 측정
+- **네트워크 모니터링**: `mcp_chrome-devtools_list_network_requests`로 API 호출 확인
+- **콘솔 메시지**: `mcp_chrome-devtools_list_console_messages`로 에러 및 로그 확인
+- **페이지 스냅샷**: `mcp_chrome-devtools_take_snapshot`로 접근성 트리 확인
+- **활용 시점**: 
+  - 컴포넌트 개발 후 실제 브라우저에서 모바일 뷰로 테스트
+  - API 통합 후 네트워크 요청 확인
+  - 성능 최적화 후 성능 측정
+  - UI/UX 검증 (모바일/태블릿 환경)
+
+### Supabase MCP
+- **데이터베이스 스키마 확인**: 테이블 구조 및 관계 확인
+- **쿼리 테스트**: SQL 쿼리 실행 및 결과 확인
+- **타입 생성**: Supabase 타입 자동 생성 확인
+- **활용 시점**:
+  - 데이터베이스 설계 시 스키마 확인
+  - API 개발 시 쿼리 테스트
+  - 타입 정의 시 Supabase 타입 활용
+
+### shadcn/ui MCP
+- **컴포넌트 검색**: 필요한 UI 컴포넌트 검색
+- **컴포넌트 추가**: `mcp_shadcn_get_add_command_for_items`로 컴포넌트 추가
+- **예제 확인**: `mcp_shadcn_get_item_examples_from_registries`로 사용 예제 확인
+- **활용 시점**:
+  - UI 컴포넌트가 필요할 때마다 shadcn/ui에서 검색 및 추가
+  - 기존 컴포넌트 커스터마이징 전 예제 확인
+  - 컴포넌트 추가 후 체크리스트로 검증
+
+## 환경 변수
+- `NEXT_PUBLIC_SUPABASE_URL`: Supabase 프로젝트 URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase Anon Key
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase Service Role Key (서버 사이드 전용)
+- `COOKIE_NAME`: 토큰 쿠키 이름 (기본값: `session`)
+- `CRAWL_API_SECRET`: 크롤링 API 보호를 위한 시크릿 키 (외부 크론 서비스에서 사용)
+
+## 참고 파일
+- 기존 프론트엔드: `/front/src/App.tsx`
+- 기존 백엔드: `/back/src/menus/`, `/back/src/user-menus/`
+- 기존 타입: `/front/src/types/Menu.ts`
+
