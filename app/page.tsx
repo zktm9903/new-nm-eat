@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { parseYYYYMMDDToDate } from "@/lib/utils/date";
+import { parseYYYYMMDDToDate, formatDateToYYYYMMDD } from "@/lib/utils/date";
 import { MenuListWrapper } from "@/components/menu/MenuListWrapper";
 import { MenuListSkeleton } from "@/components/menu/MenuListSkeleton";
 
@@ -28,7 +28,10 @@ export default async function Home({ searchParams }: HomeProps) {
       <Header date={validDate} />
       <div className="container max-w-[600px] mx-auto px-4 py-6">
         <main>
-          <Suspense fallback={<MenuListSkeleton />}>
+          <Suspense
+            fallback={<MenuListSkeleton />}
+            key={formatDateToYYYYMMDD(validDate)}
+          >
             <MenuListWrapper date={validDate} />
           </Suspense>
         </main>
