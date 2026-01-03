@@ -21,6 +21,7 @@ interface DatePickerProps {
 
 export function DatePicker({ currentDate }: DatePickerProps) {
   const router = useRouter();
+  const [open, setOpen] = React.useState(false);
 
   const handleDateChange = React.useCallback(
     (newDate: Date | undefined) => {
@@ -31,7 +32,13 @@ export function DatePicker({ currentDate }: DatePickerProps) {
       const currentDateStr = formatDateToYYYYMMDD(currentDate);
 
       // 같은 날짜면 업데이트하지 않음
-      if (currentDateStr === dateStr) return;
+      if (currentDateStr === dateStr) {
+        setOpen(false);
+        return;
+      }
+
+      // 팝오버 닫기
+      setOpen(false);
 
       // URL 업데이트만 (Next.js가 자동으로 서버 컴포넌트 리렌더링)
       router.push(`/?date=${dateStr}`, { scroll: false });
@@ -46,7 +53,7 @@ export function DatePicker({ currentDate }: DatePickerProps) {
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
