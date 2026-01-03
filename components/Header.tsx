@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DatePicker } from "@/components/DatePicker";
 import { AppStoreQRCode } from "@/components/AppStoreQRCode";
 
@@ -13,6 +13,10 @@ export function Header({ date }: HeaderProps) {
     if (typeof window === "undefined") return false;
     return /iPad|iPhone|iPod/.test(navigator.userAgent);
   });
+
+  useEffect(() => {
+    alert(navigator.userAgent + " " + isIOS.toString());
+  }, [isIOS]);
 
   return (
     <header
