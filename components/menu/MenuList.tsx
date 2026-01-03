@@ -1,6 +1,6 @@
-import { MealType } from '@/types/menu';
-import { MenuCard } from './MenuCard';
-import { Separator } from '@/components/ui/separator';
+import { MealType } from "@/types/menu";
+import { MenuCard } from "./MenuCard";
+import { Separator } from "@/components/ui/separator";
 import { MenuWithLike } from "@/hooks/query-options/menu-options";
 
 interface MenuListProps {
@@ -9,7 +9,6 @@ interface MenuListProps {
 }
 
 export function MenuList({ menus, date }: MenuListProps) {
-
   // 점심 메뉴 필터링 및 정렬: 일반식이 먼저, 도시락이 나중에
   const lunchMenus = menus
     .filter((menu) => menu.mealType === MealType.LUNCH)
@@ -51,7 +50,7 @@ export function MenuList({ menus, date }: MenuListProps) {
             <h2 className="text-lg font-semibold">점심</h2>
             <Separator className="flex-1" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 [@media(min-width:600px)]:grid-cols-2">
             {lunchMenus.map((menu) => (
               <MenuCard key={menu.id} menu={menu} date={date} />
             ))}
@@ -66,7 +65,7 @@ export function MenuList({ menus, date }: MenuListProps) {
             <h2 className="text-lg font-semibold">저녁</h2>
             <Separator className="flex-1" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 [@media(min-width:600px)]:grid-cols-2">
             {dinnerMenus.map((menu) => (
               <MenuCard key={menu.id} menu={menu} date={date} />
             ))}
@@ -76,4 +75,3 @@ export function MenuList({ menus, date }: MenuListProps) {
     </div>
   );
 }
-
