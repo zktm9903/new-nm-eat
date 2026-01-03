@@ -114,16 +114,17 @@ export function MenuCard({ menu }: MenuCardProps) {
         onClick={handleCardClick}
       >
         <div
-          className="relative w-full h-48 bg-muted overflow-hidden"
-          style={{ minHeight: "192px" }}
+          className="relative w-full bg-muted overflow-hidden"
+          style={{ aspectRatio: "4/3" }}
         >
           <Image
             src={imageUrl}
             alt={menu.name}
             fill
-            sizes="(max-width: 640px) 50vw, 300px"
+            sizes="(max-width: 640px) 50vw, 384px"
             priority={false}
             loading="lazy"
+            className="object-cover"
           />
         </div>
         <CardHeader className="p-3 pb-2">
