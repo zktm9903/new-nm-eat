@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 
-const COOKIE_NAME = process.env.COOKIE_NAME || "session";
+const COOKIE_NAME = process.env.COOKIE_NAME || "nhn-eat-session";
 
 export async function getOrCreateUserToken(): Promise<string> {
   const cookieStore = await cookies();
@@ -18,10 +18,11 @@ export async function getOrCreateUserToken(): Promise<string> {
 
   // 쿠키 설정 시도 (실패해도 토큰은 반환)
   try {
+    const isProduction = process.env.NODE_ENV === "production";
     cookieStore.set(COOKIE_NAME, newToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction, // 프로덕션에서만 HTTPS 필수
+      sameSite: isProduction ? ("none" as const) : ("lax" as const), // 프로덕션에서만 iframe에서 쿠키 전송을 위해 'none'으로 설정
       maxAge: 60 * 60 * 24 * 365, // 1년
       path: "/",
     });
