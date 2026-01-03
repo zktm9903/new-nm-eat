@@ -122,6 +122,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  :root {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  }
 }
 
 @keyframes popSpring {

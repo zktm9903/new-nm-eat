@@ -16,32 +16,37 @@ export function Header({ date }: HeaderProps) {
   const [safeAreaTop, setSafeAreaTop] = useState("0px");
 
   useEffect(() => {
-    alert("safeAreaTop: " + safeAreaTop);
-  }, [safeAreaTop]);
-
-  useEffect(() => {
-    alert(navigator.userAgent + " " + isIOS.toString());
     if (isIOS) {
-      // safe-area-inset-top 값을 실제로 읽기
-      const updateSafeArea = () => {
-        const testEl = document.createElement("div");
-        testEl.style.position = "fixed";
-        testEl.style.top = "0";
-        testEl.style.left = "0";
-        testEl.style.width = "1px";
-        testEl.style.height = "1px";
-        testEl.style.paddingTop = "env(safe-area-inset-top)";
-        testEl.style.visibility = "hidden";
-        document.body.appendChild(testEl);
+      // 웹뷰/Standalone 앱인지 확인
+      const isStandalone =
+        "standalone" in window.navigator &&
+        (window.navigator as { standalone?: boolean }).standalone === true;
+      const isDisplayModeStandalone = window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches;
+      const isInWebView = isStandalone || isDisplayModeStandalone;
 
-        const paddingTop = window.getComputedStyle(testEl).paddingTop;
-        document.body.removeChild(testEl);
+      if (isInWebView) {
+        // CSS 변수에서 safe-area-inset-top 값을 읽기
+        const updateSafeArea = () => {
+          const root = document.documentElement;
+          const computedStyle = getComputedStyle(root);
+          const safeAreaValue = computedStyle
+            .getPropertyValue("--safe-area-inset-top")
+            .trim();
 
-        setSafeAreaTop(paddingTop || "44px"); // 기본값 44px (다이나믹 아일랜드 높이)
-      };
+          // 값이 있고 0px이 아니면 사용, 아니면 기본값 사용
+          if (safeAreaValue && safeAreaValue !== "0px") {
+            setSafeAreaTop(safeAreaValue);
+          } else {
+            // 다이나믹 아일랜드가 있는 기기를 위한 기본값 (일반적으로 44px~59px)
+            setSafeAreaTop("44px");
+          }
+        };
 
-      // 다음 틱에서 실행하여 DOM이 준비된 후 실행
-      setTimeout(updateSafeArea, 0);
+        // DOM이 준비된 후 실행
+        setTimeout(updateSafeArea, 0);
+      }
     }
   }, [isIOS]);
 
