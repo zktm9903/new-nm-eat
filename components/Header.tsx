@@ -25,6 +25,10 @@ export function Header({ date }: HeaderProps) {
         "(display-mode: standalone)"
       ).matches;
       const isInWebView = isStandalone || isDisplayModeStandalone;
+      alert("isIOS: " + isIOS.toString());
+      alert("isStandalone: " + isStandalone.toString());
+      alert("isDisplayModeStandalone: " + isDisplayModeStandalone.toString());
+      alert("isInWebView: " + isInWebView.toString());
 
       if (isInWebView) {
         // CSS 변수에서 safe-area-inset-top 값을 읽기
@@ -49,6 +53,10 @@ export function Header({ date }: HeaderProps) {
       }
     }
   }, [isIOS]);
+
+  useEffect(() => {
+    alert("safeAreaTop: " + safeAreaTop);
+  }, [safeAreaTop]);
 
   return (
     <header
