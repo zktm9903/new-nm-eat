@@ -60,7 +60,7 @@ export function MenuList({ menus, date }: MenuListProps) {
 
       {/* 저녁 메뉴 */}
       {dinnerMenus.length > 0 && (
-        <div className="space-y-4">
+        <div id="dinner-section" className="space-y-4">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold">저녁</h2>
             <Separator className="flex-1" />
