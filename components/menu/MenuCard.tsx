@@ -42,18 +42,25 @@ export function MenuCard({ menu }: MenuCardProps) {
       const previousIsLiking = isLiking;
       const newIsLiking = !isLiking;
 
-      // 낙관적 업데이트: 즉시 UI 업데이트
-      setIsLiking(newIsLiking);
-
-      // 좋아요는 headShake, 좋아요 취소는 hinge 애니메이션
+      // 좋아요는 jello, 좋아요 취소는 hinge 후 bounceInUp 애니메이션
       if (newIsLiking) {
-        // 좋아요: jello
+        // 좋아요: jello (약 1초)
         setAnimationClass("animate__jello");
+        // 낙관적 업데이트: 즉시 UI 업데이트
+        setIsLiking(newIsLiking);
+        setTimeout(() => {
+          setAnimationClass(null);
+        }, 1000);
       } else {
-        // 좋아요 취소: hinge 후 bounceInUp
+        // 좋아요 취소: hinge 후 bounceInUp (hinge 2초 + bounceInUp 약 1초)
         setAnimationClass("animate__hinge");
         setTimeout(() => {
           setAnimationClass("animate__bounceInUp");
+          // 낙관적 업데이트: 즉시 UI 업데이트
+          setIsLiking(newIsLiking);
+          setTimeout(() => {
+            setAnimationClass(null);
+          }, 1000);
         }, 2000);
       }
 
@@ -67,12 +74,14 @@ export function MenuCard({ menu }: MenuCardProps) {
       if (context) {
         setIsLiking(context.previousIsLiking);
       }
+      // 애니메이션 중단
+      setAnimationClass(null);
       console.error("Failed to toggle like:", error);
     },
   });
 
   const handleCardClick = () => {
-    if (menu.id) {
+    if (menu.id && !animationClass) {
       mutation.mutate();
     }
   };
@@ -80,7 +89,8 @@ export function MenuCard({ menu }: MenuCardProps) {
   return (
     <Card
       className={cn(
-        "overflow-hidden cursor-pointer transition-all hover:shadow-md pt-0 gap-2 pb-1",
+        "overflow-hidden transition-all hover:shadow-md pt-0 gap-2 pb-1",
+        animationClass ? "cursor-not-allowed" : "cursor-pointer",
         animationClass && "animate__animated",
         animationClass
       )}
