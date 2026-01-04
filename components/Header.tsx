@@ -7,13 +7,10 @@ import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   date: Date;
+  isIOS: boolean;
 }
 
-export function Header({ date }: HeaderProps) {
-  const [isIOS] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return /iPad|iPhone|iPod/.test(navigator.userAgent);
-  });
+export function Header({ date, isIOS }: HeaderProps) {
   const [safeAreaTop, setSafeAreaTop] = useState("0px");
   const [hasDinnerMenu, setHasDinnerMenu] = useState(false);
 
@@ -65,7 +62,10 @@ export function Header({ date }: HeaderProps) {
     const dinnerSection = document.getElementById("dinner-section");
     if (dinnerSection) {
       const headerHeight = 56; // header 높이 + safe area 고려
-      const yOffset = dinnerSection.getBoundingClientRect().top + window.scrollY - headerHeight;
+      const yOffset =
+        dinnerSection.getBoundingClientRect().top +
+        window.scrollY -
+        headerHeight;
       window.scrollTo({
         top: yOffset,
         behavior: "smooth",

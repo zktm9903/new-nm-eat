@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import { Header } from "@/components/Header";
 import { AutoRefresh } from "@/components/AutoRefresh";
 import { parseYYYYMMDDToDate, formatDateToYYYYMMDD } from "@/lib/utils/date";
@@ -22,10 +23,15 @@ export default async function Home({ searchParams }: HomeProps) {
   // 날짜 유효성 검사
   const validDate = isNaN(date.getTime()) ? new Date() : date;
 
+  // 서버에서 User-Agent 확인하여 iOS 여부 판단
+  const headersList = await headers();
+  const userAgent = headersList.get("user-agent") || "";
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+
   return (
     <>
       <AutoRefresh />
-      <Header date={validDate} />
+      <Header date={validDate} isIOS={isIOS} />
       <div className="container max-w-[600px] mx-auto px-4 py-6">
         <main>
           <Suspense
