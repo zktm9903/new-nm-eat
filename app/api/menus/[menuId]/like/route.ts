@@ -28,7 +28,7 @@ export async function POST(
         httpOnly: true,
         secure: isProduction, // 프로덕션에서만 HTTPS 필수
         sameSite: isProduction ? ("none" as const) : ("lax" as const), // 프로덕션에서만 iframe에서 쿠키 전송을 위해 'none'으로 설정
-        maxAge: 60 * 60 * 24 * 365, // 1년
+        maxAge: 60 * 60 * 24 * 365 * 100, // 100년 (평생)
         path: "/",
       });
     }

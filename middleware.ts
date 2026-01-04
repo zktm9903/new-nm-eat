@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? ("none" as const) : ("lax" as const),
-      maxAge: 60 * 60 * 24 * 365,
+      maxAge: 60 * 60 * 24 * 365 * 100, // 100년 (평생)
       path: "/",
     });
   }
