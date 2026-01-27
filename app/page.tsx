@@ -2,7 +2,11 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { Header } from "@/components/Header";
 import { AutoRefresh } from "@/components/AutoRefresh";
-import { parseYYYYMMDDToDate, formatDateToYYYYMMDD } from "@/lib/utils/date";
+import {
+  parseYYYYMMDDToDate,
+  formatDateToYYYYMMDD,
+  getKoreaNow,
+} from "@/lib/utils/date";
 import { MenuListWrapper } from "@/components/menu/MenuListWrapper";
 import { MenuListSkeleton } from "@/components/menu/MenuListSkeleton";
 
@@ -17,8 +21,8 @@ export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const dateParam = params.date;
 
-  // 로컬 시간대 기준으로 날짜 파싱 (시간대 문제 방지)
-  const date = dateParam ? parseYYYYMMDDToDate(dateParam) : new Date();
+  // 쿼리 파라미터가 있으면 그대로 사용, 없으면 "한국 시간 기준 오늘" 사용
+  const date = dateParam ? parseYYYYMMDDToDate(dateParam) : getKoreaNow();
 
   // 날짜 유효성 검사
   const validDate = isNaN(date.getTime()) ? new Date() : date;
