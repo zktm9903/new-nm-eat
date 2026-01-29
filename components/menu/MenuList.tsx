@@ -2,6 +2,7 @@ import { MealType } from "@/types/menu";
 import { MenuCard } from "./MenuCard";
 import { Separator } from "@/components/ui/separator";
 import { MenuWithLike } from "@/hooks/query-options/menu-options";
+import { BirthdayNotice } from "./BirthdayNotice";
 
 interface MenuListProps {
   menus: MenuWithLike[];
@@ -9,6 +10,9 @@ interface MenuListProps {
 }
 
 export function MenuList({ menus, date }: MenuListProps) {
+  const shouldShowBirthdayNotice =
+    date.getMonth() === 0 && date.getDate() === 30; // 1월 30일
+
   // 점심 메뉴 필터링 및 정렬: 일반식이 먼저, 도시락이 나중에
   const lunchMenus = menus
     .filter((menu) => menu.mealType === MealType.LUNCH)
@@ -46,6 +50,9 @@ export function MenuList({ menus, date }: MenuListProps) {
       {/* 점심 메뉴 */}
       {lunchMenus.length > 0 && (
         <div className="space-y-4">
+          {/* 공지 */}
+          {shouldShowBirthdayNotice && <BirthdayNotice />}
+
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold">점심</h2>
             <Separator className="flex-1" />
