@@ -1,14 +1,8 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { BoardInput } from "@/components/board/BoardInput";
-import { BoardPostItem } from "@/components/board/BoardPostItem";
-import { getBoardPosts } from "@/lib/board/get-posts";
-import { getOrCreateUserToken } from "@/lib/auth/token";
+import { BoardListSkeleton } from "@/components/board/BoardListSkeleton";
 
-export default async function BoardPage() {
-  const userToken = await getOrCreateUserToken();
-  const posts = await getBoardPosts(userToken);
-
+export default async function BoardLoading() {
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
   const isIOS = /iPad|iPhone|iPod/.test(userAgent);
@@ -30,14 +24,13 @@ export default async function BoardPage() {
         </div>
       </header>
       <div className="container max-w-[600px] mx-auto px-4 py-6">
-        <BoardInput />
-        <ul className="space-y-3">
-          {posts.map((post) => (
-            <li key={post.id}>
-              <BoardPostItem post={post} />
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-2 mb-4">
+          <div className="flex gap-2">
+            <div className="flex-1 min-w-0 h-10 bg-muted rounded-md animate-pulse" />
+            <div className="h-10 w-14 bg-muted rounded-md animate-pulse" />
+          </div>
+        </div>
+        <BoardListSkeleton />
       </div>
     </>
   );
