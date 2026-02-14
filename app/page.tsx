@@ -5,7 +5,7 @@ import { AutoRefresh } from "@/components/AutoRefresh";
 import {
   parseYYYYMMDDToDate,
   formatDateToYYYYMMDD,
-  getKoreaNow,
+  getKoreaTodayString,
 } from "@/lib/utils/date";
 import { MenuListWrapper } from "@/components/menu/MenuListWrapper";
 import { MenuListSkeleton } from "@/components/menu/MenuListSkeleton";
@@ -21,11 +21,15 @@ export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const dateParam = params.date;
 
-  // 쿼리 파라미터가 있으면 그대로 사용, 없으면 "한국 시간 기준 오늘" 사용
-  const date = dateParam ? parseYYYYMMDDToDate(dateParam) : getKoreaNow();
-
-  // 날짜 유효성 검사
-  const validDate = isNaN(date.getTime()) ? new Date() : date;
+  // 쿼리 파라미터가 있으면 그대로 사용, 없으면 한국 시간 기준 오늘(YYYY-MM-DD) 사용
+  const dateStrFromParam = dateParam ?? getKoreaTodayString();
+  let validDate = parseYYYYMMDDToDate(dateStrFromParam);
+  const dateStr = isNaN(validDate.getTime())
+    ? getKoreaTodayString()
+    : dateStrFromParam;
+  if (isNaN(validDate.getTime())) {
+    validDate = parseYYYYMMDDToDate(dateStr);
+  }
 
   // 서버에서 User-Agent 확인하여 iOS 여부 판단
   const headersList = await headers();
@@ -35,7 +39,7 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <>
       <AutoRefresh />
-      <Header date={validDate} isIOS={isIOS} />
+      <Header dateStr={dateStr} isIOS={isIOS} />
       <div className="container max-w-[600px] mx-auto px-4 py-6">
         <main>
           <Suspense

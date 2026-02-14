@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { formatDateToYYYYMMDD } from "@/lib/utils/date";
+import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@/lib/utils/date";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,34 +16,34 @@ import {
 } from "@/components/ui/popover";
 
 interface DatePickerProps {
-  currentDate: Date;
+  dateStr: string;
 }
 
-export function DatePicker({ currentDate }: DatePickerProps) {
+export function DatePicker({ dateStr }: DatePickerProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
+
+  // YYYY-MM-DD 문자열을 로컬 자정 Date로 파싱 (캘린더/표시가 당일로 맞게)
+  const currentDate = React.useMemo(
+    () => parseYYYYMMDDToDate(dateStr),
+    [dateStr]
+  );
 
   const handleDateChange = React.useCallback(
     (newDate: Date | undefined) => {
       if (!newDate) return;
 
-      // 로컬 시간대 기준으로 날짜 문자열 생성 (시간대 문제 방지)
-      const dateStr = formatDateToYYYYMMDD(newDate);
-      const currentDateStr = formatDateToYYYYMMDD(currentDate);
+      const newDateStr = formatDateToYYYYMMDD(newDate);
 
-      // 같은 날짜면 업데이트하지 않음
-      if (currentDateStr === dateStr) {
+      if (dateStr === newDateStr) {
         setOpen(false);
         return;
       }
 
-      // 팝오버 닫기
       setOpen(false);
-
-      // URL 업데이트만 (Next.js가 자동으로 서버 컴포넌트 리렌더링)
-      router.push(`/?date=${dateStr}`, { scroll: false });
+      router.push(`/?date=${newDateStr}`, { scroll: false });
     },
-    [currentDate, router]
+    [dateStr, router]
   );
 
   // 주말(토요일=6, 일요일=0)을 비활성화하는 함수

@@ -7,11 +7,11 @@ import { AppStoreQRCode } from "@/components/AppStoreQRCode";
 import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
-  date: Date;
+  dateStr: string;
   isIOS: boolean;
 }
 
-export function Header({ date, isIOS }: HeaderProps) {
+export function Header({ dateStr, isIOS }: HeaderProps) {
   const [hasDinnerMenu, setHasDinnerMenu] = useState(false);
 
   // 저녁 메뉴 존재 여부 확인
@@ -32,7 +32,7 @@ export function Header({ date, isIOS }: HeaderProps) {
     });
 
     return () => observer.disconnect();
-  }, [date]);
+  }, [dateStr]);
 
   const scrollToDinner = () => {
     const dinnerSection = document.getElementById("dinner-section");
@@ -57,10 +57,10 @@ export function Header({ date, isIOS }: HeaderProps) {
       }}
     >
       <div className="container flex h-14 items-center justify-between max-w-[600px] mx-auto px-4">
-        <DatePicker currentDate={date} />
+        <DatePicker dateStr={dateStr} />
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" asChild className="text-xs">
-            <Link href="/board">자유게시판</Link>
+            <Link href="/board">게시판</Link>
           </Button>
           {hasDinnerMenu && (
             <Button
