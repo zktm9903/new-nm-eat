@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DatePicker } from "@/components/DatePicker";
 import { AppStoreQRCode } from "@/components/AppStoreQRCode";
@@ -58,6 +59,9 @@ export function Header({ date, isIOS }: HeaderProps) {
       <div className="container flex h-14 items-center justify-between max-w-[600px] mx-auto px-4">
         <DatePicker currentDate={date} />
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild className="text-xs">
+            <Link href="/board">자유게시판</Link>
+          </Button>
           {hasDinnerMenu && (
             <Button
               variant="outline"

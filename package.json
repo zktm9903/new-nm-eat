@@ -22,6 +22,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "glin-profanity": "^3.3.0",
+    "ko-unique-name-generator": "^1.4.0",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "qrcode.react": "^4.2.0",
