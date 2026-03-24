@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useMutation } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -23,7 +23,15 @@ interface MenuCardProps {
 export function MenuCard({ menu }: MenuCardProps) {
   const [isLiking, setIsLiking] = useState(menu.liked || false);
   const [animationClass, setAnimationClass] = useState<string | null>(null);
-  const defaultImageUrl = "/no-image-cat.gif";
+  const defaultImageUrl = useMemo(() => {
+    const fallbackImages = [
+      "/no-image-cat.gif",
+      "/no-image-dog.gif",
+      "/no-image-guinea-pig.gif",
+    ];
+    const randomIndex = Math.floor(Math.random() * fallbackImages.length);
+    return fallbackImages[randomIndex];
+  }, []);
   const imageUrl = menu.imageUrl || defaultImageUrl;
 
   // menu props가 변경될 때마다 isLiking 업데이트
