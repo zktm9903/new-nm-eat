@@ -26,10 +26,13 @@ const APP_STORE_URL = "https://apps.apple.com/kr/app/nm-eat/id6741020395";
 export function AppStoreQRCode() {
   const [qrDrawerOpen, setQrDrawerOpen] = useState(false);
   const [animalDrawerOpen, setAnimalDrawerOpen] = useState(false);
-  const { selectedAnimals, toggleAnimal, hasChosen } = useSelectedAnimals();
+  const { selectedAnimals, toggleAnimal, hasChosen, markAsChosen } = useSelectedAnimals();
 
   useEffect(() => {
-    if (!hasChosen) setAnimalDrawerOpen(true);
+    if (!hasChosen) {
+      setAnimalDrawerOpen(true);
+      markAsChosen();
+    }
   }, [hasChosen]);
 
   return (

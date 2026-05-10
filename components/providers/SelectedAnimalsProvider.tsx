@@ -13,6 +13,7 @@ interface SelectedAnimalsContextValue {
   selectedSrcs: string[];
   hasChosen: boolean;
   toggleAnimal: (key: AnimalKey) => void;
+  markAsChosen: () => void;
 }
 
 const SelectedAnimalsContext = createContext<SelectedAnimalsContextValue | null>(null);
@@ -55,10 +56,12 @@ export function SelectedAnimalsProvider({ children }: { children: React.ReactNod
     });
   };
 
+  const markAsChosen = () => setHasChosen(true);
+
   const selectedSrcs = ANIMALS.filter((a) => selectedAnimals.includes(a.key)).map((a) => a.src);
 
   return (
-    <SelectedAnimalsContext.Provider value={{ selectedAnimals, selectedSrcs, hasChosen, toggleAnimal }}>
+    <SelectedAnimalsContext.Provider value={{ selectedAnimals, selectedSrcs, hasChosen, toggleAnimal, markAsChosen }}>
       {children}
     </SelectedAnimalsContext.Provider>
   );
