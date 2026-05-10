@@ -12,6 +12,7 @@ import {
 } from "@/hooks/query-options/menu-options";
 import { Flame, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSelectedAnimals } from "@/hooks/use-selected-animals";
 
 import "animate.css";
 
@@ -23,15 +24,11 @@ interface MenuCardProps {
 export function MenuCard({ menu }: MenuCardProps) {
   const [isLiking, setIsLiking] = useState(menu.liked || false);
   const [animationClass, setAnimationClass] = useState<string | null>(null);
+  const { selectedSrcs } = useSelectedAnimals();
   const defaultImageUrl = useMemo(() => {
-    const fallbackImages = [
-      "/no-image-cat.gif",
-      "/no-image-dog.gif",
-      "/no-image-guinea-pig.gif",
-    ];
-    const randomIndex = Math.floor(Math.random() * fallbackImages.length);
-    return fallbackImages[randomIndex];
-  }, []);
+    const pool = selectedSrcs.length > 0 ? selectedSrcs : ["/no-image-cat.gif"];
+    return pool[Math.floor(Math.random() * pool.length)];
+  }, [selectedSrcs]);
   const imageUrl = menu.imageUrl || defaultImageUrl;
 
   // menu props가 변경될 때마다 isLiking 업데이트
