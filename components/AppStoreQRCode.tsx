@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/drawer";
 import { MoreHorizontal, QrCode, PawPrint, Check } from "lucide-react";
 import { ANIMALS, useSelectedAnimals } from "@/hooks/use-selected-animals";
+import { STORAGE_KEY, DEFAULT_SELECTED } from "@/components/providers/SelectedAnimalsProvider";
 import { cn } from "@/lib/utils";
 
 const APP_STORE_URL = "https://apps.apple.com/kr/app/nm-eat/id6741020395";
@@ -26,14 +27,14 @@ const APP_STORE_URL = "https://apps.apple.com/kr/app/nm-eat/id6741020395";
 export function AppStoreQRCode() {
   const [qrDrawerOpen, setQrDrawerOpen] = useState(false);
   const [animalDrawerOpen, setAnimalDrawerOpen] = useState(false);
-  const { selectedAnimals, toggleAnimal, hasChosen, markAsChosen } = useSelectedAnimals();
+  const { selectedAnimals, toggleAnimal } = useSelectedAnimals();
 
   useEffect(() => {
-    if (!hasChosen) {
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SELECTED));
       setAnimalDrawerOpen(true);
-      markAsChosen();
     }
-  }, [hasChosen]);
+  }, []);
 
   return (
     <>

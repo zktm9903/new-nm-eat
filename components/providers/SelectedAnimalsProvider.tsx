@@ -5,39 +5,29 @@ import { ANIMALS } from "@/hooks/use-selected-animals";
 
 type AnimalKey = (typeof ANIMALS)[number]["key"];
 
-const STORAGE_KEY = "nm-eat-selected-animals";
-const DEFAULT_SELECTED: AnimalKey[] = ["cat", "dog", "guinea-pig"];
+export const STORAGE_KEY = "nm-eat-selected-animals";
+export const DEFAULT_SELECTED: AnimalKey[] = ["cat", "dog", "guinea-pig"];
 
 interface SelectedAnimalsContextValue {
   selectedAnimals: AnimalKey[];
   selectedSrcs: string[];
-  hasChosen: boolean;
   toggleAnimal: (key: AnimalKey) => void;
-  markAsChosen: () => void;
 }
 
 const SelectedAnimalsContext = createContext<SelectedAnimalsContextValue | null>(null);
 
 export function SelectedAnimalsProvider({ children }: { children: React.ReactNode }) {
   const [selectedAnimals, setSelectedAnimals] = useState<AnimalKey[]>(DEFAULT_SELECTED);
-  const [hasChosen, setHasChosen] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SELECTED));
-      setHasChosen(false);
-      return;
-    }
-    setHasChosen(true);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as AnimalKey[];
-        const valid = parsed.filter((k) => ANIMALS.some((a) => a.key === k));
-        if (valid.length > 0) setSelectedAnimals(valid);
-      } catch {
-        // ignore
-      }
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored) as AnimalKey[];
+      const valid = parsed.filter((k) => ANIMALS.some((a) => a.key === k));
+      if (valid.length > 0) setSelectedAnimals(valid);
+    } catch {
+      // ignore
     }
   }, []);
 
@@ -51,17 +41,14 @@ export function SelectedAnimalsProvider({ children }: { children: React.ReactNod
       }
       const next = [...prev, key];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      setHasChosen(true);
       return next;
     });
   };
 
-  const markAsChosen = () => setHasChosen(true);
-
   const selectedSrcs = ANIMALS.filter((a) => selectedAnimals.includes(a.key)).map((a) => a.src);
 
   return (
-    <SelectedAnimalsContext.Provider value={{ selectedAnimals, selectedSrcs, hasChosen, toggleAnimal, markAsChosen }}>
+    <SelectedAnimalsContext.Provider value={{ selectedAnimals, selectedSrcs, toggleAnimal }}>
       {children}
     </SelectedAnimalsContext.Provider>
   );
