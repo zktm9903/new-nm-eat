@@ -104,7 +104,6 @@ export function AppStoreQRCode() {
                     alt={animal.label}
                     fill
                     className="object-cover"
-                    unoptimized
                   />
                   {/* 선택 오버레이 */}
                   <div
