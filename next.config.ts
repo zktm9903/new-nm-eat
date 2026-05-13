@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.steamusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'zwavfmnwtqohwkdylpmm.supabase.co',
+      },
     ],
   },
 };
