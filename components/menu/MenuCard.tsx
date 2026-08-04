@@ -12,7 +12,7 @@ import {
 } from "@/hooks/query-options/menu-options";
 import { Flame, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSelectedAnimals } from "@/hooks/use-selected-animals";
+import { ANIMALS, useSelectedAnimals } from "@/hooks/use-selected-animals";
 
 import "animate.css";
 
@@ -26,7 +26,7 @@ export function MenuCard({ menu }: MenuCardProps) {
   const [animationClass, setAnimationClass] = useState<string | null>(null);
   const { selectedSrcs } = useSelectedAnimals();
   const defaultImageUrl = useMemo(() => {
-    const pool = selectedSrcs.length > 0 ? selectedSrcs : ["/no-image-cat.gif"];
+    const pool = selectedSrcs.length > 0 ? selectedSrcs : [ANIMALS[0].src];
     return pool[Math.floor(Math.random() * pool.length)];
   }, [selectedSrcs]);
   const imageUrl = menu.imageUrl || defaultImageUrl;
