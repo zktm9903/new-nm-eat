@@ -28,6 +28,8 @@ export function BoardInput() {
         return;
       }
       setValue("");
+      // 새 글은 항상 1페이지 최상단에 생기므로 1페이지로 이동시킨다
+      router.push("/board");
       router.refresh();
     } catch (err) {
       console.error(err);

@@ -8,7 +8,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
-    const posts = await getBoardPosts(null);
+    // 관리자 화면은 기존과 동일하게 최신 20개 배열만 반환한다
+    const { posts } = await getBoardPosts(null);
     return NextResponse.json(posts);
   } catch (err) {
     console.error("Admin get posts error:", err);

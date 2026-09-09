@@ -36,11 +36,21 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+function parsePositiveInt(value: string | null): number | undefined {
+  if (value == null) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+export async function GET(request: Request) {
   try {
     const { getBoardPosts } = await import("@/lib/board/get-posts");
-    const posts = await getBoardPosts();
-    return NextResponse.json(posts);
+    const { searchParams } = new URL(request.url);
+    const result = await getBoardPosts(null, {
+      page: parsePositiveInt(searchParams.get("page")),
+      pageSize: parsePositiveInt(searchParams.get("pageSize")),
+    });
+    return NextResponse.json(result);
   } catch (err) {
     console.error("Board posts fetch error:", err);
     return NextResponse.json(

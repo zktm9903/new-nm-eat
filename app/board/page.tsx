@@ -2,12 +2,24 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { BoardInput } from "@/components/board/BoardInput";
 import { BoardPostItem } from "@/components/board/BoardPostItem";
+import { BoardPagination } from "@/components/board/BoardPagination";
 import { getBoardPosts } from "@/lib/board/get-posts";
 import { getOrCreateUserToken } from "@/lib/auth/token";
 
-export default async function BoardPage() {
+interface BoardPageProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function BoardPage({ searchParams }: BoardPageProps) {
+  const { page: pageParam } = await searchParams;
+  const parsedPage = Number.parseInt(pageParam ?? "", 10);
+  const requestedPage =
+    Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
   const userToken = await getOrCreateUserToken();
-  const posts = await getBoardPosts(userToken);
+  const { posts, page, totalPages } = await getBoardPosts(userToken, {
+    page: requestedPage,
+  });
 
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
@@ -38,6 +50,7 @@ export default async function BoardPage() {
             </li>
           ))}
         </ul>
+        <BoardPagination currentPage={page} totalPages={totalPages} />
       </div>
     </>
   );
