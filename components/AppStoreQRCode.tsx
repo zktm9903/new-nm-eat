@@ -17,12 +17,14 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { MoreHorizontal, QrCode, PawPrint, Check } from "lucide-react";
+import { MoreHorizontal, QrCode, PawPrint, Check, Chrome } from "lucide-react";
 import { ANIMALS, useSelectedAnimals } from "@/hooks/use-selected-animals";
 import { STORAGE_KEY, DEFAULT_SELECTED } from "@/components/providers/SelectedAnimalsProvider";
 import { cn } from "@/lib/utils";
 
 const APP_STORE_URL = "https://apps.apple.com/kr/app/nm-eat/id6741020395";
+const CHROME_EXTENSION_URL =
+  "https://chromewebstore.google.com/detail/aelgjngikkoofmdjlgnhheafhjnnbjje";
 
 export function AppStoreQRCode() {
   const [qrDrawerOpen, setQrDrawerOpen] = useState(false);
@@ -48,6 +50,16 @@ export function AppStoreQRCode() {
           <DropdownMenuItem onSelect={() => setQrDrawerOpen(true)}>
             <QrCode className="h-4 w-4" />
             앱스토어 QR코드
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a
+              href={CHROME_EXTENSION_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Chrome className="h-4 w-4" />
+              크롬 익스텐션 설치
+            </a>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setAnimalDrawerOpen(true)}>
             <PawPrint className="h-4 w-4" />
